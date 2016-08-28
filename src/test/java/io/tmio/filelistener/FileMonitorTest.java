@@ -16,6 +16,7 @@ limitations under the License.
 package io.tmio.filelistener;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -44,12 +45,10 @@ public class FileMonitorTest {
   public ExpectedException thrown = ExpectedException.none();
 
   @Test
-  public void testReadFile() {
-    String parentFile = FileMonitor.class.getResource("/").getFile();
-    File rootFolder = new File(parentFile);
-    File file = new File(rootFolder, "test.txt");
-    Assert.assertTrue(file.exists());
-    FileMonitor<Map> monitor = FileMonitorFactory.createFileMonitor(file, Map.class);
+  public void testReadFile() throws IOException {
+    File destFile = Files.createTempFile("monitored", "file").toFile();
+    FileUtils.writeStringToFile(destFile, "{\"TarantinoMovies\":[]}");
+    FileMonitor<Map> monitor = FileMonitorFactory.createFileMonitor(destFile, Map.class);
     Assert.assertNotNull(monitor.get());
     Assert.assertEquals(1, monitor.get().size());
     Assert.assertEquals("TarantinoMovies", monitor.get().keySet().iterator().next());
@@ -65,13 +64,11 @@ public class FileMonitorTest {
 
   @Test
   public void testFileStartsExisting() throws Exception {
-    String parentFile = FileMonitor.class.getResource("/").getFile();
-    File rootFolder = new File(parentFile);
     File destFile = Files.createTempFile("monitored", "file").toFile();
 
     FileMonitor<Map> monitor = FileMonitorFactory.createFileMonitor(destFile, Map.class);
     Assert.assertNull(monitor.get());
-    FileUtils.copyFile(new File(rootFolder, "test.txt"), destFile);
+    FileUtils.writeStringToFile(destFile, "{\"TarantinoMovies\":[]}");
     Assert.assertNotNull(monitor.get());
   }
 
@@ -104,10 +101,8 @@ public class FileMonitorTest {
 
   @Test
   public void testFileIsDeleted() throws Exception {
-    String parentFile = FileMonitor.class.getResource("/").getFile();
-    File rootFolder = new File(parentFile);
     File destFile = Files.createTempFile("monitored", "file").toFile();
-    FileUtils.copyFile(new File(rootFolder, "test.txt"), destFile);
+    FileUtils.writeStringToFile(destFile, "{\"TarantinoMovies\":[]}");
     FileMonitor<Map> monitor = FileMonitorFactory.createFileMonitor(destFile, Map.class);
     Assert.assertEquals("TarantinoMovies", monitor.get().keySet().iterator().next());
     destFile.delete();
@@ -116,10 +111,8 @@ public class FileMonitorTest {
 
   @Test
   public void testFileDoesNotChange() throws Exception {
-    String parentFile = FileMonitor.class.getResource("/").getFile();
-    File rootFolder = new File(parentFile);
     File destFile = Files.createTempFile("monitored", "file").toFile();
-    FileUtils.copyFile(new File(rootFolder, "test.txt"), destFile);
+    FileUtils.writeStringToFile(destFile, "{\"TarantinoMovies\":[]}");
     FileMonitor<Map> monitor = FileMonitorFactory.createFileMonitor(destFile, Map.class);
     Assert.assertEquals("TarantinoMovies", monitor.get().keySet().iterator().next());
     Assert.assertEquals("TarantinoMovies", monitor.get().keySet().iterator().next());
@@ -128,10 +121,8 @@ public class FileMonitorTest {
 
   @Test
   public void testFileIsNotRereadIfNotChanged() throws Exception {
-    String parentFile = FileMonitor.class.getResource("/").getFile();
-    File rootFolder = new File(parentFile);
     File destFile = Files.createTempFile("monitored", "file").toFile();
-    FileUtils.copyFile(new File(rootFolder, "test.txt"), destFile);
+    FileUtils.writeStringToFile(destFile, "{\"TarantinoMovies\":[]}");
     CountingFileReader<Map> reader = new CountingFileReader<>(Map.class);
 
     FileMonitor<Map> monitor = FileMonitorFactory.createFileMonitor(destFile, reader);

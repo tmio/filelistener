@@ -23,7 +23,7 @@ import io.tmio.filelistener.impl.FileMonitorImpl;
 
 public class FileMonitorFactory {
 
-  public static <T> FileMonitor<T> createFileMonitor(File file, Class klass) {
+  public static <T> FileMonitor<T> createFileMonitor(File file, Class<T> klass) {
     return new FileMonitorImpl<T>(file, new DefaultFileReader<T>(klass));
   }
 
@@ -31,7 +31,7 @@ public class FileMonitorFactory {
     return new FileMonitorImpl<T>(file, reader);
   }
 
-  public static <T> FileMonitor<T> createFileMonitorWithDefaultValue(File file, T defaultValue, Class klass) {
+  public static <T> FileMonitor<T> createFileMonitorWithDefaultValue(File file, T defaultValue, Class<T> klass) {
     return new FileMonitorImpl<T>(file, new DefaultFileReaderWithDefaultValue<T>(defaultValue, klass));
   }
 }
