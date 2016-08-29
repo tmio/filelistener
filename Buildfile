@@ -1,6 +1,8 @@
 require 'buildr/gpg'
 require 'buildr/custom_pom'
 
+repositories.remote << 'http://repo1.maven.org/maven2'
+
 repositories.release_to[:url] = 'https://oss.sonatype.org/service/local/staging/deploy/maven2/'
 repositories.release_to[:username] = ENV['USERNAME']
 repositories.release_to[:password] = ENV['PASSWORD']
@@ -13,8 +15,6 @@ DEPENDENCIES = [
 ]
   
 COMMONSIO = 'commons-io:commons-io:jar:2.4'
-
-repositories.remote << 'http://repo1.maven.org/maven2'
 
 define('filelistener', :group => 'io.tmio', :version => VERSION_NUMBER) do
   compile.with(DEPENDENCIES)
